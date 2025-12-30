@@ -1,27 +1,28 @@
-import pg from 'pg';
+// src/db/connection.ts
+import { Pool } from 'pg';
 import { logger } from '../utils/logger.js';
 
-const { Pool } = pg;
-
-// Support both DATABASE_URL (connection string) and individual variables
+// Определяем конфигурацию пула
 let poolConfig: any;
 
 if (process.env.DATABASE_URL) {
-  // Use connection string (for Neon, Railway, etc.)
+  // Используем DATABASE_URL (для Railway, Neon, Render и т.д.)
   poolConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('sslmode=require') || process.env.DATABASE_URL.includes('neon.tech') 
-      ? { rejectUnauthorized: false } 
-      : undefined,
+    ssl:
+      process.env.DATABASE_URL.includes('sslmode=require') ||
+      process.env.DATABASE_URL.includes('neon.tech')
+        ? { rejectUnauthorized: false }
+        : undefined,
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
   };
 } else {
-  // Use individual variables (fallback)
+  // Резерв: индивидуальные переменные (для локальной разработки)
   poolConfig = {
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
+    port: parseInt(process.env.DB_PORT || '5432', 10),
     database: process.env.DB_NAME || 'tenderhub',
     user: process.env.DB_USER || 'tenderhub',
     password: process.env.DB_PASSWORD || 'password',
@@ -32,12 +33,17 @@ if (process.env.DATABASE_URL) {
   };
 }
 
+// Создаём пул подключений
 const pool = new Pool(poolConfig);
 
-pool.on('error', (err: Error) => { /* ... */ });
+// Обработка ошибок на "холодном" клиенте
+pool.on('error', (err: Error) => {
   logger.error('Unexpected error on idle client', err);
+  // Не вызываем process.exit(-1), чтобы не падать в Railway
+  // (в PaaS лучше перезапускать через health-check)
 });
 
+// Функция инициализации (проверка подключения)
 export async function initDatabase() {
   try {
     await pool.query('SELECT NOW()');
@@ -48,5 +54,5 @@ export async function initDatabase() {
   }
 }
 
+// Экспортируем пул для использования в других модулях
 export { pool };
-

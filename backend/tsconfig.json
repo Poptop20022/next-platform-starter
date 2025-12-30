@@ -19,9 +19,3 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-{
-  "compilerOptions": {
-    "skipLibCheck": true,
-    // ... остальные настройки
-  }
-}
