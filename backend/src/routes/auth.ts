@@ -77,15 +77,15 @@ authRoutes.post('/login', async (req, res, next) => {
       return next(new AppError(401, 'Invalid credentials'));
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT_SECRET not configured');
+     const secret = process.env.JWT_SECRET;
+     if (!secret) {
+     throw new Error('JWT_SECRET not configured');
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      secret,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    { id: user.id, email: user.email, role: user.role },
+    secret,
+    { expiresIn: '7d' }  // ← жёстко задано как строка
     );
 
     res.json({
