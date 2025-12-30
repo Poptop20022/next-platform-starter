@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -9,10 +9,21 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [apiUrl, setApiUrl] = useState(API_URL);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  useEffect(() => {
+    // Проверка API URL при загрузке
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    setApiUrl(url);
+    
+    if (!url || url === 'http://localhost:3001') {
+      console.warn('⚠️ NEXT_PUBLIC_API_URL не настроен. Используется localhost.');
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +31,16 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      // Проверка наличия API URL
+      if (!apiUrl || apiUrl === 'http://localhost:3001') {
+        throw new Error(
+          'API URL не настроен. Пожалуйста, настройте NEXT_PUBLIC_API_URL в Netlify Environment Variables.'
+        );
+      }
+
+      console.log('Attempting login to:', `${apiUrl}/api/auth/login`);
+
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -29,8 +49,13 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Login failed');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: { message: `HTTP ${response.status}: ${response.statusText}` } };
+        }
+        throw new Error(errorData.error?.message || `Login failed: ${response.status}`);
       }
 
       const data = await response.json();
@@ -38,7 +63,17 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/tenders');
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.name === 'TypeError') {
+        setError(
+          `Не удалось подключиться к серверу. Проверьте:\n` +
+          `1. Backend запущен и доступен: ${apiUrl}\n` +
+          `2. NEXT_PUBLIC_API_URL настроен в Netlify\n` +
+          `3. CORS настроен на backend`
+        );
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,13 +86,42 @@ export default function LoginPage() {
     });
   };
 
+  const testConnection = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/api/health`);
+      if (response.ok) {
+        const data = await response.json();
+        alert(`✅ Backend доступен!\n${JSON.stringify(data, null, 2)}`);
+      } else {
+        alert(`❌ Backend вернул ошибку: ${response.status}`);
+      }
+    } catch (err) {
+      alert(`❌ Не удалось подключиться к backend:\n${err.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow rounded-lg p-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">TenderHub Login</h1>
 
+        {/* Debug info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
+            <div className="font-semibold mb-1">Debug Info:</div>
+            <div>API URL: {apiUrl}</div>
+            <button
+              type="button"
+              onClick={testConnection}
+              className="mt-2 text-blue-600 hover:underline text-xs"
+            >
+              Тест подключения →
+            </button>
+          </div>
+        )}
+
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 whitespace-pre-line text-sm">
             {error}
           </div>
         )}
@@ -73,6 +137,7 @@ export default function LoginPage() {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="admin@example.com"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -87,6 +152,7 @@ export default function LoginPage() {
               value={formData.password}
               onChange={handleChange}
               required
+              placeholder="admin123"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -99,8 +165,11 @@ export default function LoginPage() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        <div className="mt-4 text-xs text-gray-500 text-center">
+          По умолчанию: admin@example.com / admin123
+        </div>
       </div>
     </div>
   );
 }
-

@@ -307,6 +307,7 @@ npm run start      # Production режим
 **📖 Инструкции:**
 - **Быстрый старт:** [NETLIFY_SETUP.md](./NETLIFY_SETUP.md) (3 шага, 10 минут)
 - **Подробная инструкция:** [DEPLOY_NETLIFY.md](./DEPLOY_NETLIFY.md)
+- **Решение проблем:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) (особенно "Failed to fetch")
 
 ## Лицензия
 
