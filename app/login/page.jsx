@@ -10,7 +10,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [apiUrl, setApiUrl] = useState(() => {
-    // Проверяем сохраненный URL из localStorage или используем env
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('api_url');
       if (saved) return saved;
@@ -24,7 +23,6 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    // Проверка API URL при загрузке
     const url = process.env.NEXT_PUBLIC_API_URL || apiUrl || 'http://localhost:3001';
     if (url && url !== 'http://localhost:3001') {
       setApiUrl(url);
@@ -32,7 +30,6 @@ export default function LoginPage() {
         localStorage.setItem('api_url', url);
       }
     } else {
-      // Если URL не настроен, показываем поле для ввода
       setShowApiInput(true);
     }
   }, []);
@@ -43,14 +40,11 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Проверка наличия API URL
       if (!apiUrl || apiUrl === 'http://localhost:3001') {
         throw new Error(
           'API URL не настроен. Пожалуйста, настройте NEXT_PUBLIC_API_URL в Netlify Environment Variables.'
         );
       }
-
-      console.log('Attempting login to:', `${apiUrl}/api/auth/login`);
 
       const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
@@ -130,135 +124,199 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white shadow rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">TenderHub Login</h1>
-
-        {/* API URL Input - показываем если не настроен */}
-        {(showApiInput || !apiUrl || apiUrl === 'http://localhost:3001') && (
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-            <div className="text-sm font-semibold text-yellow-800 mb-2">
-              ⚠️ API URL не настроен в Netlify
-            </div>
-            <div className="text-xs text-yellow-700 mb-3 space-y-1">
-              <div><strong>Вариант 1 (рекомендуется):</strong> Настройте переменную в Netlify:</div>
-              <div className="ml-2">1. Netlify Dashboard → Site settings → Environment variables</div>
-              <div className="ml-2">2. Добавьте: <code className="bg-yellow-100 px-1">NEXT_PUBLIC_API_URL</code> = ваш backend URL</div>
-              <div className="ml-2">3. Пересоберите сайт (или дождитесь следующего деплоя)</div>
-              <div className="mt-2"><strong>Вариант 2 (временно):</strong> Введите URL вручную ниже:</div>
-            </div>
-            <input
-              type="text"
-              value={apiUrl}
-              onChange={(e) => {
-                const url = e.target.value.trim();
-                setApiUrl(url);
-                if (typeof window !== 'undefined') {
-                  localStorage.setItem('api_url', url);
-                }
-              }}
-              placeholder="https://your-backend.railway.app"
-              className="w-full px-3 py-2 border border-yellow-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            />
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={testConnection}
-                className="text-xs px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-              >
-                Проверить подключение
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (apiUrl && apiUrl !== 'http://localhost:3001') {
-                    setShowApiInput(false);
-                  }
-                }}
-                className="text-xs px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
-              >
-                Скрыть
-              </button>
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+            <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
           </div>
-        )}
-
-        {/* Debug info */}
-        <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
-          <div className="font-semibold mb-1">Текущий API URL:</div>
-          <div className="font-mono text-xs break-all mb-2">{apiUrl || 'не настроен'}</div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setShowApiInput(!showApiInput)}
-              className="text-blue-600 hover:underline text-xs"
-            >
-              {showApiInput ? 'Скрыть' : 'Изменить'} URL
-            </button>
-            <button
-              type="button"
-              onClick={testConnection}
-              className="text-blue-600 hover:underline text-xs"
-            >
-              Тест подключения →
-            </button>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">TenderHub</h1>
+          <p className="text-gray-600">Система управления тендерами</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 whitespace-pre-line text-sm">
-            {error}
-          </div>
-        )}
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Вход в систему</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="admin@example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="admin123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <div className="mt-4 text-xs text-gray-500 text-center space-y-1">
-          <div>По умолчанию: admin@example.com / admin123</div>
-          {(!apiUrl || apiUrl === 'http://localhost:3001') && (
-            <div className="text-red-600 font-semibold mt-2">
-              ⚠️ Настройте NEXT_PUBLIC_API_URL в Netlify или введите URL вручную выше
+          {/* API URL Configuration - Collapsible */}
+          {(showApiInput || !apiUrl || apiUrl === 'http://localhost:3001') && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3 flex-1">
+                  <h3 className="text-sm font-semibold text-amber-800 mb-2">
+                    Настройка API URL
+                  </h3>
+                  <p className="text-xs text-amber-700 mb-3">
+                    Настройте переменную <code className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900">NEXT_PUBLIC_API_URL</code> в Netlify или введите URL вручную:
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={apiUrl}
+                      onChange={(e) => {
+                        const url = e.target.value.trim();
+                        setApiUrl(url);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('api_url', url);
+                        }
+                      }}
+                      placeholder="https://your-backend.railway.app"
+                      className="flex-1 px-3 py-2 text-sm border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={testConnection}
+                      disabled={loading}
+                      className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Проверить
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-red-800 whitespace-pre-line">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="admin@example.com"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Пароль
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !apiUrl || apiUrl === 'http://localhost:3001'}
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Вход...
+                </>
+              ) : (
+                'Войти'
+              )}
+            </button>
+          </form>
+
+          {/* Debug Info - Collapsible */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <details className="group">
+              <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 flex items-center justify-between">
+                <span>Техническая информация</span>
+                <svg className="h-4 w-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="mt-3 space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">API URL:</span>
+                  <code className="text-gray-700 bg-gray-100 px-2 py-1 rounded break-all">{apiUrl || 'не настроен'}</code>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowApiInput(!showApiInput)}
+                    className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                  >
+                    {showApiInput ? 'Скрыть' : 'Изменить'} URL
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={testConnection}
+                    className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                  >
+                    Тест подключения
+                  </button>
+                </div>
+              </div>
+            </details>
+          </div>
+
+          {/* Default Credentials Hint */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-500">
+              По умолчанию: <span className="font-mono text-gray-700">admin@example.com</span> / <span className="font-mono text-gray-700">admin123</span>
+            </p>
+          </div>
         </div>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-gray-500">
+          © 2024 TenderHub. Система управления тендерами.
+        </p>
       </div>
     </div>
   );
