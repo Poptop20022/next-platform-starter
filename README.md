@@ -302,18 +302,17 @@ npm run start      # Production режим
 **✅ Решение:** Гибридное развертывание
 - **Frontend** → Netlify
 - **Backend** → Railway или Render  
-- **PostgreSQL** → Supabase, Neon, или Railway
+- **PostgreSQL** → Neon (или Supabase, Railway)
 
 **📖 Инструкции:**
-- **🔍 Диагностика проблем:** [DIAGNOSTICS.md](./DIAGNOSTICS.md) ← **Если что-то не работает!**
+- **🏗️ Архитектура (обязательно прочитайте!):** [ARCHITECTURE_EXPLAINED.md](./ARCHITECTURE_EXPLAINED.md) ← **Начните отсюда!**
+- **🚀 Создание Backend на Railway:** [SETUP_BACKEND_RAILWAY.md](./SETUP_BACKEND_RAILWAY.md) ← **Если нет backend сервиса!**
+- **🔍 Диагностика проблем:** [DIAGNOSTICS.md](./DIAGNOSTICS.md)
 - **🧪 Тестовая страница:** `/test-connection` на вашем сайте
-- **🚀 Простая настройка Netlify:** [NETLIFY_SETUP_SIMPLE.md](./NETLIFY_SETUP_SIMPLE.md) ← **Начните отсюда!**
-- **🚀 Быстрое исправление:** [QUICK_FIX.md](./QUICK_FIX.md)
+- **🚀 Простая настройка Netlify:** [NETLIFY_SETUP_SIMPLE.md](./NETLIFY_SETUP_SIMPLE.md)
+- **⚙️ Настройка Neon:** [NEON_SETUP.md](./NEON_SETUP.md)
 - **⚙️ Настройка Railway:** [RAILWAY_SETUP.md](./RAILWAY_SETUP.md)
-- **⚙️ Настройка Netlify (подробно):** [NETLIFY_ENV_SETUP.md](./NETLIFY_ENV_SETUP.md)
-- **Быстрый старт:** [NETLIFY_SETUP.md](./NETLIFY_SETUP.md) (3 шага, 10 минут)
-- **Подробная инструкция:** [DEPLOY_NETLIFY.md](./DEPLOY_NETLIFY.md)
-- **Решение проблем:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) (особенно "Failed to fetch")
+- **Решение проблем:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
 ## Лицензия
 

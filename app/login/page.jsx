@@ -46,7 +46,16 @@ export default function LoginPage() {
         );
       }
 
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+      // Валидация URL перед запросом
+      const validation = validateUrl(apiUrl);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
+      // Очищаем URL от слеша в конце
+      const cleanUrl = apiUrl.trim().replace(/\/$/, '');
+
+      const response = await fetch(`${cleanUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -92,16 +101,63 @@ export default function LoginPage() {
     });
   };
 
+  const validateUrl = (url) => {
+    if (!url) return { valid: false, error: 'URL не может быть пустым' };
+    
+    // Проверка на неправильные URL (PostgreSQL proxy и т.д.)
+    const invalidPatterns = [
+      /tramway\.proxy\.rlwy\.net/i,
+      /\.proxy\./i,
+      /:5432/i,
+      /:29343/i,
+      /postgres/i,
+      /database/i
+    ];
+    
+    for (const pattern of invalidPatterns) {
+      if (pattern.test(url)) {
+        return { 
+          valid: false, 
+          error: 'Это похоже на URL базы данных, а не backend API. Нужен URL вашего backend сервиса (например: https://your-backend.railway.app)' 
+        };
+      }
+    }
+    
+    // Проверка формата URL
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return { valid: false, error: 'URL должен начинаться с http:// или https://' };
+    }
+    
+    try {
+      new URL(url);
+      return { valid: true };
+    } catch {
+      return { valid: false, error: 'Неверный формат URL' };
+    }
+  };
+
   const testConnection = async () => {
     if (!apiUrl || apiUrl === 'http://localhost:3001') {
-      alert('⚠️ Пожалуйста, введите URL backend');
+      setError('⚠️ Пожалуйста, введите URL backend');
       setShowApiInput(true);
+      return;
+    }
+
+    // Валидация URL
+    const validation = validateUrl(apiUrl);
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/health`, {
+      setError(null);
+      
+      // Убедимся, что URL правильный (без слеша в конце)
+      const cleanUrl = apiUrl.trim().replace(/\/$/, '');
+      
+      const response = await fetch(`${cleanUrl}/api/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -110,14 +166,28 @@ export default function LoginPage() {
       
       if (response.ok) {
         const data = await response.json();
-        alert(`✅ Backend доступен!\n\nURL: ${apiUrl}\n\nОтвет:\n${JSON.stringify(data, null, 2)}\n\nТеперь можно войти!`);
-        setShowApiInput(false);
         setError(null);
+        setShowApiInput(false);
+        // Показываем успешное сообщение через временный success state
+        const successMsg = `✅ Backend доступен! URL настроен правильно. Теперь можно войти.`;
+        setError(null);
+        alert(successMsg);
       } else {
-        alert(`❌ Backend вернул ошибку: ${response.status} ${response.statusText}`);
+        setError(`❌ Backend вернул ошибку: ${response.status} ${response.statusText}\n\nПроверьте, что это правильный URL вашего backend сервиса.`);
       }
     } catch (err) {
-      alert(`❌ Не удалось подключиться к backend:\n\n${err.message}\n\nПроверьте:\n1. URL правильный (начинается с https://)\n2. Backend запущен\n3. Нет проблем с CORS`);
+      let errorMsg = `❌ Не удалось подключиться к backend:\n\n${err.message}\n\n`;
+      
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        errorMsg += `Возможные причины:\n`;
+        errorMsg += `1. URL неправильный - это должен быть URL вашего backend сервиса (не базы данных!)\n`;
+        errorMsg += `2. URL должен начинаться с https://\n`;
+        errorMsg += `3. Backend должен быть запущен и доступен\n`;
+        errorMsg += `4. Проверьте URL в Railway Dashboard → ваш backend сервис → Settings → Networking → Public Domain\n\n`;
+        errorMsg += `Текущий URL: ${apiUrl}`;
+      }
+      
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -157,7 +227,7 @@ export default function LoginPage() {
                   <p className="text-xs text-amber-700 mb-3">
                     Настройте переменную <code className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900">NEXT_PUBLIC_API_URL</code> в Netlify или введите URL вручную:
                   </p>
-                  <div className="flex gap-2">
+                  <div className="space-y-2">
                     <input
                       type="text"
                       value={apiUrl}
@@ -167,18 +237,36 @@ export default function LoginPage() {
                         if (typeof window !== 'undefined') {
                           localStorage.setItem('api_url', url);
                         }
+                        // Очищаем ошибку при изменении
+                        if (error && error.includes('URL')) {
+                          setError(null);
+                        }
                       }}
                       placeholder="https://your-backend.railway.app"
-                      className="flex-1 px-3 py-2 text-sm border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 text-sm border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     />
-                    <button
-                      type="button"
-                      onClick={testConnection}
-                      disabled={loading}
-                      className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Проверить
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={testConnection}
+                        disabled={loading}
+                        className="flex-1 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {loading ? 'Проверка...' : 'Проверить подключение'}
+                      </button>
+                    </div>
+                    <div className="text-xs text-amber-700 bg-amber-100 p-2 rounded">
+                      <strong>Как найти правильный URL:</strong>
+                      <ol className="list-decimal list-inside mt-1 space-y-1 ml-2">
+                        <li>Railway Dashboard → ваш <strong>backend сервис</strong> (Node.js, не PostgreSQL!)</li>
+                        <li>Settings → Networking</li>
+                        <li>Скопируйте <strong>Public Domain</strong></li>
+                        <li>Добавьте <code className="bg-amber-200 px-1">https://</code> в начало</li>
+                      </ol>
+                      <p className="mt-2 text-amber-800">
+                        ⚠️ <strong>Не используйте</strong> URL базы данных (tramway.proxy.rlwy.net) - это не backend!
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -315,7 +403,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">
-          © 2024 TenderHub. Система управления тендерами.
+          © 2025 TenderHub. Система управления тендерами.
         </p>
       </div>
     </div>
