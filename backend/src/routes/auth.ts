@@ -84,8 +84,8 @@ authRoutes.post('/login', async (req, res, next) => {
 
     const token = jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    secret,
-    { expiresIn: '7d' }  // ← жёстко задано как строка
+    process.env.JWT_SECRET as string,
+    { expiresIn: '7d' }
     );
 
     res.json({

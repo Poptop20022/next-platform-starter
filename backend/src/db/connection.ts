@@ -34,7 +34,7 @@ if (process.env.DATABASE_URL) {
 
 const pool = new Pool(poolConfig);
 
-pool.on('error', (err) => {
+pool.on('error', (err: Error) => {
   logger.error('Unexpected error on idle client', err);
 });
 
