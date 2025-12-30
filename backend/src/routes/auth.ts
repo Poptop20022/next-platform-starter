@@ -84,10 +84,9 @@ if (!secret) {
 
 const token = jwt.sign(
   { id: user.id, email: user.email, role: user.role },
-  secret,
-  { expiresIn: '7d' } // временно жёстко задано — чтобы избежать проблем с типом
+  process.env.JWT_SECRET as string,
+  { expiresIn: '7d' }
 );
-
     res.json({
       token,
       user: {
