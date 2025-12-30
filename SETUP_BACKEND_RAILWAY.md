@@ -4,6 +4,10 @@
 
 У вас нет backend сервиса на Railway, поэтому frontend не может подключиться к API.
 
+**Важно:** Backend URL находится на **Railway**, а не на Netlify!
+- **Netlify** = только Frontend (ваш сайт)
+- **Railway** = Backend (API сервер)
+
 ## Решение: Создайте Backend сервис
 
 ### Вариант 1: Из GitHub репозитория (Рекомендуется)

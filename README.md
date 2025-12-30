@@ -305,13 +305,13 @@ npm run start      # Production режим
 - **PostgreSQL** → Neon (или Supabase, Railway)
 
 **📖 Инструкции:**
-- **🏗️ Архитектура (обязательно прочитайте!):** [ARCHITECTURE_EXPLAINED.md](./ARCHITECTURE_EXPLAINED.md) ← **Начните отсюда!**
+- **🔍 Где найти Backend URL:** [HOW_TO_FIND_BACKEND_URL.md](./HOW_TO_FIND_BACKEND_URL.md) ← **Начните отсюда!**
+- **🏗️ Архитектура (обязательно прочитайте!):** [ARCHITECTURE_EXPLAINED.md](./ARCHITECTURE_EXPLAINED.md)
 - **🚀 Создание Backend на Railway:** [SETUP_BACKEND_RAILWAY.md](./SETUP_BACKEND_RAILWAY.md) ← **Если нет backend сервиса!**
+- **🔑 Backend URL vs Database URL:** [BACKEND_URL_VS_DATABASE_URL.md](./BACKEND_URL_VS_DATABASE_URL.md)
 - **🔍 Диагностика проблем:** [DIAGNOSTICS.md](./DIAGNOSTICS.md)
 - **🧪 Тестовая страница:** `/test-connection` на вашем сайте
-- **🚀 Простая настройка Netlify:** [NETLIFY_SETUP_SIMPLE.md](./NETLIFY_SETUP_SIMPLE.md)
 - **⚙️ Настройка Neon:** [NEON_SETUP.md](./NEON_SETUP.md)
-- **⚙️ Настройка Railway:** [RAILWAY_SETUP.md](./RAILWAY_SETUP.md)
 - **Решение проблем:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
 ## Лицензия

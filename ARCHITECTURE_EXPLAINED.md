@@ -73,6 +73,20 @@
 ### Railway PostgreSQL - НЕ НУЖЕН!
 Вы используете Neon, поэтому Railway PostgreSQL можно удалить.
 
+## 🔑 Важно: Backend URL vs Database URL
+
+**Это РАЗНЫЕ вещи!**
+
+- **Backend URL** - URL вашего API сервера (например: `https://backend.railway.app`)
+  - Нужен для frontend (Netlify)
+  - Находится в Railway → backend сервис → Settings → Networking → Public Domain
+  
+- **Database URL** - Connection string к базе данных (например: `postgresql://neon...`)
+  - Нужен для backend (Railway)
+  - Находится в Neon Dashboard → Connection Details
+
+📖 **Подробнее:** [BACKEND_URL_VS_DATABASE_URL.md](./BACKEND_URL_VS_DATABASE_URL.md)
+
 ## 🔄 Как они взаимодействуют
 
 ### Пример: Пользователь входит в систему
@@ -81,14 +95,16 @@
    ```
    Пользователь вводит email/password
    → Нажимает "Войти"
-   → Frontend отправляет POST запрос на backend
+   → Frontend отправляет POST запрос на Backend URL
+   → https://backend.railway.app/api/auth/login
    ```
 
 2. **Backend (Railway):**
    ```
    Получает запрос: POST /api/auth/login
    → Проверяет credentials
-   → Делает SQL запрос к Neon: SELECT * FROM users WHERE email = ...
+   → Использует Database URL для подключения к Neon
+   → Делает SQL запрос: SELECT * FROM users WHERE email = ...
    → Возвращает JWT token
    ```
 
@@ -107,6 +123,10 @@
 
 **Решение:**
 
+📖 **Подробная инструкция:** [SETUP_BACKEND_RAILWAY.md](./SETUP_BACKEND_RAILWAY.md)
+
+**Кратко:**
+
 1. **Railway Dashboard** → ваш проект
 2. **+ New** → **GitHub Repo** (или **Empty Service**)
 3. Если через GitHub:
@@ -119,7 +139,7 @@
 
 5. **Настройте переменные окружения:**
    ```
-   DATABASE_URL = postgresql://neondb_owner:npg_YkX7Wm6FNRTU@ep-mute-truth-aejonffm-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require
+   DATABASE_URL = ваш Neon connection string (из Neon Dashboard)
    PORT = 3001
    JWT_SECRET = ваш-секретный-ключ
    NODE_ENV = production
@@ -130,10 +150,11 @@
    - Соберет проект (`npm run build`)
    - Запустит сервер (`npm start`)
 
-7. **Получите Public Domain:**
+7. **Получите Backend URL (Public Domain):**
    - **Settings** → **Networking**
    - Нажмите **Generate Domain** (если нет)
    - Скопируйте URL (например: `tenderhub-production.up.railway.app`)
+   - **Это и есть Backend URL!** Добавьте `https://` в начало
 
 ### Шаг 2: Удалите Railway PostgreSQL (если есть)
 
@@ -149,7 +170,7 @@
    ```
    NEXT_PUBLIC_API_URL = https://your-backend.railway.app
    ```
-   (URL из шага 1, пункт 7)
+   ⚠️ **Важно:** Это **Backend URL** из шага 1, пункт 7 (НЕ Database URL!)
 
 4. **Пересоберите сайт**
 
@@ -167,29 +188,33 @@
 
 ### Railway (Backend):
 - ✅ Node.js сервис (backend/)
-- ✅ Переменные: DATABASE_URL (Neon), PORT, JWT_SECRET
-- ✅ Public Domain: `https://your-backend.railway.app`
+- ✅ Переменные: 
+  - `DATABASE_URL` = ваш Neon connection string (Database URL)
+  - `PORT` = 3001
+  - `JWT_SECRET` = ваш-секретный-ключ
+- ✅ Public Domain: `https://your-backend.railway.app` ← **Это Backend URL!**
 - ❌ PostgreSQL сервис (удалить, если есть)
 
 ### Neon:
 - ✅ PostgreSQL база данных
-- ✅ Connection string в DATABASE_URL
+- ✅ Connection string (Database URL) → используется в Railway как `DATABASE_URL`
 
 ### Netlify (Frontend):
 - ✅ Next.js приложение
-- ✅ NEXT_PUBLIC_API_URL = `https://your-backend.railway.app`
+- ✅ `NEXT_PUBLIC_API_URL` = `https://your-backend.railway.app` ← **Это Backend URL!**
 
 ## 🔍 Проверка
 
-1. **Backend доступен:**
+1. **Backend доступен (используйте Backend URL):**
    ```
    https://your-backend.railway.app/api/health
    → {"status":"ok","timestamp":"..."}
    ```
+   ⚠️ Замените `your-backend.railway.app` на ваш реальный Backend URL из Railway!
 
 2. **Frontend подключается:**
    - Откройте страницу входа
-   - Введите правильный backend URL
+   - Введите **Backend URL** (НЕ Database URL!)
    - Нажмите "Проверить подключение"
    - Должно быть: ✅ Backend доступен!
 
