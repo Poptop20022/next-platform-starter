@@ -122,6 +122,9 @@ export default function LoginPage() {
 
       // Очищаем URL от слеша в конце
       const cleanUrl = apiUrl.trim().replace(/\/$/, '');
+      
+      // Логируем для отладки
+      console.log('Attempting login to:', `${cleanUrl}/api/auth/login`);
 
       const response = await fetch(`${cleanUrl}/api/auth/login`, {
         method: 'POST',
@@ -138,6 +141,19 @@ export default function LoginPage() {
         } catch {
           errorData = { error: { message: `HTTP ${response.status}: ${response.statusText}` } };
         }
+        
+        // Более подробная информация об ошибке 404
+        if (response.status === 404) {
+          throw new Error(
+            `Роут не найден (404). Проверьте:\n` +
+            `1. Backend пересобран после изменений?\n` +
+            `2. Роут /api/auth/login зарегистрирован?\n` +
+            `3. Проверьте логи backend на Railway\n\n` +
+            `URL: ${cleanUrl}/api/auth/login\n` +
+            `Ответ сервера: ${JSON.stringify(errorData, null, 2)}`
+          );
+        }
+        
         throw new Error(errorData.error?.message || `Login failed: ${response.status}`);
       }
 

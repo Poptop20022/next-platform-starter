@@ -59,9 +59,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Routes (must be before 404 handler)
 setupRoutes(app);
 setupSwagger(app);
+
+// Log available routes on startup (for debugging)
+logger.info('Registered routes:', {
+  auth: ['POST /api/auth/login', 'POST /api/auth/register', 'GET /api/auth/me'],
+  health: ['GET /api/health'],
+  docs: ['GET /api-docs']
+});
 
 // 404 handler for undefined routes (must be after all routes)
 app.use((req, res, next) => {
