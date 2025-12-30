@@ -60,11 +60,24 @@ app.use((req, res, next) => {
 });
 
 // Routes (must be before 404 handler)
-setupRoutes(app);
-setupSwagger(app);
+try {
+  setupRoutes(app);
+  logger.info('Routes setup completed');
+} catch (error) {
+  logger.error('Failed to setup routes:', error);
+  throw error;
+}
+
+try {
+  setupSwagger(app);
+  logger.info('Swagger setup completed');
+} catch (error) {
+  logger.error('Failed to setup Swagger:', error);
+  // Don't throw, Swagger is optional
+}
 
 // Log available routes on startup (for debugging)
-logger.info('Registered routes:', {
+logger.info('Available API endpoints:', {
   auth: ['POST /api/auth/login', 'POST /api/auth/register', 'GET /api/auth/me'],
   health: ['GET /api/health'],
   docs: ['GET /api-docs']

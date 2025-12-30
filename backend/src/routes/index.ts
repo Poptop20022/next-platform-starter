@@ -9,19 +9,48 @@ import { attachmentRoutes } from './attachments.js';
 import { comparisonRoutes } from './comparison.js';
 import { documentRoutes } from './documents.js';
 
-export function setupRoutes(app: Express) {
-  app.use('/api/auth', authRoutes);
-  app.use('/api/tenders', tenderRoutes);
-  app.use('/api/lots', lotRoutes);
-  app.use('/api/positions', positionRoutes);
-  app.use('/api/suppliers', supplierRoutes);
-  app.use('/api/quotes', quoteRoutes);
-  app.use('/api/attachments', attachmentRoutes);
-  app.use('/api/comparison', comparisonRoutes);
-  app.use('/api/documents', documentRoutes);
+import { logger } from '../utils/logger.js';
 
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
+export function setupRoutes(app: Express) {
+  try {
+    logger.info('Setting up routes...');
+    
+    app.use('/api/auth', authRoutes);
+    logger.info('✓ Auth routes registered at /api/auth');
+    
+    app.use('/api/tenders', tenderRoutes);
+    logger.info('✓ Tender routes registered at /api/tenders');
+    
+    app.use('/api/lots', lotRoutes);
+    logger.info('✓ Lot routes registered at /api/lots');
+    
+    app.use('/api/positions', positionRoutes);
+    logger.info('✓ Position routes registered at /api/positions');
+    
+    app.use('/api/suppliers', supplierRoutes);
+    logger.info('✓ Supplier routes registered at /api/suppliers');
+    
+    app.use('/api/quotes', quoteRoutes);
+    logger.info('✓ Quote routes registered at /api/quotes');
+    
+    app.use('/api/attachments', attachmentRoutes);
+    logger.info('✓ Attachment routes registered at /api/attachments');
+    
+    app.use('/api/comparison', comparisonRoutes);
+    logger.info('✓ Comparison routes registered at /api/comparison');
+    
+    app.use('/api/documents', documentRoutes);
+    logger.info('✓ Document routes registered at /api/documents');
+
+    app.get('/api/health', (req, res) => {
+      res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    });
+    logger.info('✓ Health check route registered at /api/health');
+    
+    logger.info('All routes registered successfully');
+  } catch (error) {
+    logger.error('Error setting up routes:', error);
+    throw error;
+  }
 }
 
