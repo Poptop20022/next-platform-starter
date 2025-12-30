@@ -1,3 +1,14 @@
 [build]
   publish = ".next"
   command = "npm run build"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Next.js handles its own routing, so we don't need redirects for pages
+# API calls should go to external backend (configured via NEXT_PUBLIC_API_URL)
+
+# Environment variables (set in Netlify dashboard)
+# NEXT_PUBLIC_API_URL=https://your-backend.railway.app
