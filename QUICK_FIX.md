@@ -7,13 +7,37 @@
 
 ### ✅ Шаг 1: Настройте DATABASE_URL в Railway
 
+**Если используете Neon/Supabase (внешняя БД):**
+
+1. **Railway Dashboard** → ваш **backend сервис**
+2. **Variables** → **+ New Variable**
+3. Добавьте:
+   - **Key:** `DATABASE_URL`
+   - **Value:** ваш connection string от Neon/Supabase
+   
+   Пример для Neon:
+   ```
+   postgresql://user:password@host/database?sslmode=require
+   ```
+
+4. Также добавьте:
+   - `PORT` = `3001`
+   - `JWT_SECRET` = `ваш-длинный-секретный-ключ`
+   - `NODE_ENV` = `production`
+
+5. Railway автоматически пересоберет backend
+
+📖 **Подробно для Neon:** [NEON_SETUP.md](./NEON_SETUP.md)
+
+**Если используете Railway PostgreSQL:**
+
 1. **Railway Dashboard** → ваш **backend сервис** (Node.js, не PostgreSQL!)
 2. **Variables** → **+ New Variable**
 3. Добавьте:
    - **Key:** `DATABASE_URL`
    - **Value:** `${{Postgres.DATABASE_URL}}`
    
-   ⚠️ **Важно:** Замените `Postgres` на точное имя вашего PostgreSQL сервиса (посмотрите в Railway Dashboard)
+   ⚠️ **Важно:** Замените `Postgres` на точное имя вашего PostgreSQL сервиса
 
 4. Также добавьте:
    - `PORT` = `3001`
