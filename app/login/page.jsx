@@ -246,13 +246,23 @@ export default function LoginPage() {
     } catch (err) {
       let errorMsg = `❌ Не удалось подключиться к backend:\n\n${err.message}\n\n`;
       
-      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-        errorMsg += `Возможные причины:\n`;
-        errorMsg += `1. URL неправильный - это должен быть URL вашего backend сервиса (не базы данных!)\n`;
-        errorMsg += `2. URL должен начинаться с https://\n`;
-        errorMsg += `3. Backend должен быть запущен и доступен\n`;
-        errorMsg += `4. Проверьте URL в Railway Dashboard → ваш backend сервис → Settings → Networking → Public Domain\n\n`;
-        errorMsg += `Текущий URL: ${apiUrl}`;
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.name === 'TypeError') {
+        errorMsg += `🔍 Диагностика:\n\n`;
+        errorMsg += `1. Проверьте доступность в браузере:\n`;
+        errorMsg += `   Откройте: ${cleanUrl}/api/health\n\n`;
+        errorMsg += `2. Проверьте Railway Dashboard:\n`;
+        errorMsg += `   - Backend сервис запущен? (статус "Running")\n`;
+        errorMsg += `   - Есть ли ошибки в логах? (Deployments → View Logs)\n`;
+        errorMsg += `   - Правильный ли Public Domain?\n\n`;
+        errorMsg += `3. Проверьте переменные окружения:\n`;
+        errorMsg += `   - DATABASE_URL настроен? (Neon connection string)\n`;
+        errorMsg += `   - PORT = 3001?\n`;
+        errorMsg += `   - JWT_SECRET задан?\n\n`;
+        errorMsg += `4. Возможна проблема с CORS:\n`;
+        errorMsg += `   - Проверьте backend/src/index.ts\n`;
+        errorMsg += `   - Убедитесь, что ваш Netlify домен добавлен в allowedOrigins\n\n`;
+        errorMsg += `Текущий URL: ${apiUrl}\n\n`;
+        errorMsg += `💡 Попробуйте открыть URL в браузере напрямую для проверки.`;
       }
       
       setError(errorMsg);

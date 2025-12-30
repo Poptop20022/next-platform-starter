@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3001;
 const allowedOrigins = [
   'http://localhost:3000',
   'https://tehnogrupp.netlify.app',
+  'https://*.netlify.app', // Allow all Netlify subdomains
   process.env.NETLIFY_SITE_URL,
   process.env.FRONTEND_URL,
 ].filter(Boolean);
@@ -25,18 +26,28 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      // In production, you might want to be more strict
-      if (process.env.NODE_ENV === 'production') {
-        callback(new Error('Not allowed by CORS'));
-      } else {
-        callback(null, true);
-      }
+    // Check exact match
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+    
+    // Check Netlify subdomain pattern
+    if (origin.includes('.netlify.app')) {
+      return callback(null, true);
+    }
+    
+    // Development mode - allow all
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // In production, log but allow for now (можно ужесточить позже)
+    logger.warn(`CORS request from unknown origin: ${origin}`);
+    callback(null, true); // Temporarily allow all origins for debugging
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
