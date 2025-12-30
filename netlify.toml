@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "20.18.0"
   NPM_FLAGS = "--legacy-peer-deps"
 
 # Next.js handles its own routing, so we don't need redirects for pages

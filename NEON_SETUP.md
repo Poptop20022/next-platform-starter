@@ -75,6 +75,13 @@ postgresql://neondb_owner:npg_YkX7Wm6FNRTU@ep-mute-truth-aejonffm.c-2.us-east-2.
 ```
 (убрать `-pooler` из URL)
 
+### Расширения PostgreSQL
+Neon поддерживает все необходимые расширения:
+- ✅ `uuid-ossp` - используется в миграциях
+- ✅ Все стандартные функции PostgreSQL
+
+Миграции полностью совместимы с Neon.
+
 ### Формат connection string
 
 **Правильный формат:**

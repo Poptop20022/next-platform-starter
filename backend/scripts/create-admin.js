@@ -5,13 +5,31 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { Pool } = pg;
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'tenderhub',
-  user: process.env.DB_USER || 'tenderhub',
-  password: process.env.DB_PASSWORD || 'password',
-});
+
+// Support both DATABASE_URL (connection string) and individual variables
+let poolConfig;
+
+if (process.env.DATABASE_URL) {
+  // Use connection string (for Neon, Railway, etc.)
+  poolConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes('sslmode=require') || process.env.DATABASE_URL.includes('neon.tech')
+      ? { rejectUnauthorized: false }
+      : undefined,
+  };
+} else {
+  // Use individual variables (fallback)
+  poolConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'tenderhub',
+    user: process.env.DB_USER || 'tenderhub',
+    password: process.env.DB_PASSWORD || 'password',
+    ssl: process.env.DB_SSL === 'require' ? { rejectUnauthorized: false } : undefined,
+  };
+}
+
+const pool = new Pool(poolConfig);
 
 async function createAdmin() {
   const email = process.argv[2] || 'admin@example.com';
