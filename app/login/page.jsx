@@ -135,13 +135,17 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">TenderHub Login</h1>
 
         {/* API URL Input - показываем если не настроен */}
-        {showApiInput && (
+        {(showApiInput || !apiUrl || apiUrl === 'http://localhost:3001') && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
             <div className="text-sm font-semibold text-yellow-800 mb-2">
-              ⚠️ API URL не настроен
+              ⚠️ API URL не настроен в Netlify
             </div>
-            <div className="text-xs text-yellow-700 mb-3">
-              Введите URL вашего backend (например: https://your-backend.railway.app)
+            <div className="text-xs text-yellow-700 mb-3 space-y-1">
+              <div><strong>Вариант 1 (рекомендуется):</strong> Настройте переменную в Netlify:</div>
+              <div className="ml-2">1. Netlify Dashboard → Site settings → Environment variables</div>
+              <div className="ml-2">2. Добавьте: <code className="bg-yellow-100 px-1">NEXT_PUBLIC_API_URL</code> = ваш backend URL</div>
+              <div className="ml-2">3. Пересоберите сайт (или дождитесь следующего деплоя)</div>
+              <div className="mt-2"><strong>Вариант 2 (временно):</strong> Введите URL вручную ниже:</div>
             </div>
             <input
               type="text"

@@ -305,9 +305,10 @@ npm run start      # Production режим
 - **PostgreSQL** → Supabase, Neon, или Railway
 
 **📖 Инструкции:**
-- **🚀 Быстрое исправление:** [QUICK_FIX.md](./QUICK_FIX.md) ← **Начните отсюда!**
+- **🚀 Простая настройка Netlify:** [NETLIFY_SETUP_SIMPLE.md](./NETLIFY_SETUP_SIMPLE.md) ← **Начните отсюда!**
+- **🚀 Быстрое исправление:** [QUICK_FIX.md](./QUICK_FIX.md)
 - **⚙️ Настройка Railway:** [RAILWAY_SETUP.md](./RAILWAY_SETUP.md)
-- **⚙️ Настройка Netlify:** [NETLIFY_ENV_SETUP.md](./NETLIFY_ENV_SETUP.md)
+- **⚙️ Настройка Netlify (подробно):** [NETLIFY_ENV_SETUP.md](./NETLIFY_ENV_SETUP.md)
 - **Быстрый старт:** [NETLIFY_SETUP.md](./NETLIFY_SETUP.md) (3 шага, 10 минут)
 - **Подробная инструкция:** [DEPLOY_NETLIFY.md](./DEPLOY_NETLIFY.md)
 - **Решение проблем:** [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) (особенно "Failed to fetch")
