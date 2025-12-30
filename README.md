@@ -305,6 +305,8 @@ npm run start      # Production режим
 - **PostgreSQL** → Supabase, Neon, или Railway
 
 **📖 Инструкции:**
+- **🔍 Диагностика проблем:** [DIAGNOSTICS.md](./DIAGNOSTICS.md) ← **Если что-то не работает!**
+- **🧪 Тестовая страница:** `/test-connection` на вашем сайте
 - **🚀 Простая настройка Netlify:** [NETLIFY_SETUP_SIMPLE.md](./NETLIFY_SETUP_SIMPLE.md) ← **Начните отсюда!**
 - **🚀 Быстрое исправление:** [QUICK_FIX.md](./QUICK_FIX.md)
 - **⚙️ Настройка Railway:** [RAILWAY_SETUP.md](./RAILWAY_SETUP.md)

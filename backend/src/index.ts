@@ -52,6 +52,25 @@ app.use((req, res, next) => {
 setupRoutes(app);
 setupSwagger(app);
 
+// 404 handler for undefined routes (must be after all routes)
+app.use((req, res, next) => {
+  logger.warn(`Route not found: ${req.method} ${req.path}`);
+  res.status(404).json({
+    error: {
+      message: `Route not found: ${req.method} ${req.path}`,
+      statusCode: 404,
+      availableRoutes: [
+        'GET /api/health',
+        'POST /api/auth/login',
+        'POST /api/auth/register',
+        'GET /api/auth/me',
+        'GET /api/tenders',
+        'GET /api-docs'
+      ]
+    }
+  });
+});
+
 // Error handler
 app.use(errorHandler);
 
