@@ -12,7 +12,25 @@ export default function LoginPage() {
   const [apiUrl, setApiUrl] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('api_url');
-      if (saved) return saved;
+      // Проверяем, что сохраненный URL не является неправильным (PostgreSQL proxy и т.д.)
+      if (saved) {
+        const invalidPatterns = [
+          /tramway\.proxy\.rlwy\.net/i,
+          /\.proxy\./i,
+          /:5432/i,
+          /:29343/i,
+          /railway\.internal/i,
+          /localhost:3001/i
+        ];
+        
+        const isInvalid = invalidPatterns.some(pattern => pattern.test(saved));
+        if (!isInvalid && (saved.startsWith('http://') || saved.startsWith('https://'))) {
+          return saved;
+        } else {
+          // Удаляем неправильный URL из localStorage
+          localStorage.removeItem('api_url');
+        }
+      }
     }
     return API_URL;
   });
@@ -23,16 +41,62 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_API_URL || apiUrl || 'https://next-platform-starter-production.up.railway.app';
-    if (url) {
-      setApiUrl(url);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('api_url', url);
+    // Очищаем неправильные URL из localStorage при загрузке
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('api_url');
+      if (saved) {
+        const invalidPatterns = [
+          /tramway\.proxy\.rlwy\.net/i,
+          /\.proxy\./i,
+          /:5432/i,
+          /:29343/i,
+          /railway\.internal/i,
+          /localhost:3001/i
+        ];
+        
+        const isInvalid = invalidPatterns.some(pattern => pattern.test(saved));
+        if (isInvalid) {
+          // Удаляем неправильный URL
+          localStorage.removeItem('api_url');
+          console.log('Удален неправильный URL из localStorage:', saved);
+        }
       }
-      // Не показываем поле ввода, если URL правильный
-      if (url.includes('railway.app') || url.includes('render.com') || url.includes('fly.dev')) {
-        setShowApiInput(false);
-      }
+    }
+
+    const defaultUrl = 'https://next-platform-starter-production.up.railway.app';
+    const envUrl = process.env.NEXT_PUBLIC_API_URL;
+    const currentUrl = apiUrl;
+    
+    // Определяем какой URL использовать
+    let urlToUse = envUrl || currentUrl || defaultUrl;
+    
+    // Проверяем, что URL правильный
+    const invalidPatterns = [
+      /tramway\.proxy\.rlwy\.net/i,
+      /\.proxy\./i,
+      /:5432/i,
+      /:29343/i,
+      /railway\.internal/i,
+      /localhost:3001/i
+    ];
+    
+    const isInvalid = invalidPatterns.some(pattern => pattern.test(urlToUse));
+    
+    if (isInvalid) {
+      // Используем правильный URL по умолчанию
+      urlToUse = defaultUrl;
+      console.log('Обнаружен неправильный URL, используется по умолчанию:', defaultUrl);
+    }
+    
+    // Устанавливаем правильный URL
+    setApiUrl(urlToUse);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('api_url', urlToUse);
+    }
+    
+    // Не показываем поле ввода, если URL правильный
+    if (urlToUse.includes('railway.app') || urlToUse.includes('render.com') || urlToUse.includes('fly.dev')) {
+      setShowApiInput(false);
     } else {
       setShowApiInput(true);
     }
@@ -372,11 +436,16 @@ export default function LoginPage() {
                 </svg>
               </summary>
               <div className="mt-3 space-y-2 text-xs">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-start">
                   <span className="text-gray-500">API URL:</span>
-                  <code className="text-gray-700 bg-gray-100 px-2 py-1 rounded break-all">{apiUrl || 'не настроен'}</code>
+                  <code className="text-gray-700 bg-gray-100 px-2 py-1 rounded break-all text-left max-w-[70%]">
+                    {apiUrl || 'https://next-platform-starter-production.up.railway.app'}
+                  </code>
                 </div>
-                <div className="flex gap-2 pt-2">
+                <div className="text-gray-500 text-xs pt-1">
+                  По умолчанию: <code className="bg-gray-100 px-1">https://next-platform-starter-production.up.railway.app</code>
+                </div>
+                <div className="flex gap-2 pt-2 flex-wrap">
                   <button
                     type="button"
                     onClick={() => setShowApiInput(!showApiInput)}
@@ -391,6 +460,25 @@ export default function LoginPage() {
                     className="text-blue-600 hover:text-blue-800 text-xs font-medium"
                   >
                     Тест подключения
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        localStorage.removeItem('api_url');
+                        const defaultUrl = 'https://next-platform-starter-production.up.railway.app';
+                        setApiUrl(defaultUrl);
+                        localStorage.setItem('api_url', defaultUrl);
+                        setShowApiInput(false);
+                        setError(null);
+                        alert('URL сброшен на значение по умолчанию');
+                      }
+                    }}
+                    className="text-red-600 hover:text-red-800 text-xs font-medium"
+                    title="Сбросить URL на значение по умолчанию"
+                  >
+                    Сбросить URL
                   </button>
                 </div>
               </div>
