@@ -78,15 +78,15 @@ authRoutes.post('/login', async (req, res, next) => {
     }
 
      const secret = process.env.JWT_SECRET;
-     if (!secret) {
-     throw new Error('JWT_SECRET not configured');
-    }
+if (!secret) {
+  throw new Error('JWT_SECRET is required');
+}
 
-    const token = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET as string,
-    { expiresIn: '7d' }
-    );
+const token = jwt.sign(
+  { id: user.id, email: user.email, role: user.role },
+  secret,
+  { expiresIn: '7d' } // временно жёстко задано — чтобы избежать проблем с типом
+);
 
     res.json({
       token,
