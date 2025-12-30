@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://next-platform-starter-production.up.railway.app';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,11 +23,15 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_API_URL || apiUrl || 'http://localhost:3001';
-    if (url && url !== 'http://localhost:3001') {
+    const url = process.env.NEXT_PUBLIC_API_URL || apiUrl || 'https://next-platform-starter-production.up.railway.app';
+    if (url) {
       setApiUrl(url);
       if (typeof window !== 'undefined') {
         localStorage.setItem('api_url', url);
+      }
+      // Не показываем поле ввода, если URL правильный
+      if (url.includes('railway.app') || url.includes('render.com') || url.includes('fly.dev')) {
+        setShowApiInput(false);
       }
     } else {
       setShowApiInput(true);
@@ -40,9 +44,9 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      if (!apiUrl || apiUrl === 'http://localhost:3001') {
+      if (!apiUrl) {
         throw new Error(
-          'API URL не настроен. Пожалуйста, настройте NEXT_PUBLIC_API_URL в Netlify Environment Variables.'
+          'API URL не настроен. Используется URL по умолчанию: https://next-platform-starter-production.up.railway.app'
         );
       }
 
@@ -137,7 +141,7 @@ export default function LoginPage() {
   };
 
   const testConnection = async () => {
-    if (!apiUrl || apiUrl === 'http://localhost:3001') {
+    if (!apiUrl) {
       setError('⚠️ Пожалуйста, введите URL backend');
       setShowApiInput(true);
       return;
@@ -212,7 +216,7 @@ export default function LoginPage() {
           <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Вход в систему</h2>
 
           {/* API URL Configuration - Collapsible */}
-          {(showApiInput || !apiUrl || apiUrl === 'http://localhost:3001') && (
+          {showApiInput && (
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
@@ -242,7 +246,7 @@ export default function LoginPage() {
                           setError(null);
                         }
                       }}
-                      placeholder="https://your-backend.railway.app"
+                      placeholder="https://next-platform-starter-production.up.railway.app"
                       className="w-full px-3 py-2 text-sm border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     />
                     <div className="flex gap-2">
@@ -341,7 +345,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || !apiUrl || apiUrl === 'http://localhost:3001'}
+              disabled={loading || !apiUrl}
               className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {loading ? (

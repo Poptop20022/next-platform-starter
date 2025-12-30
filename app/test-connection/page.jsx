@@ -7,9 +7,9 @@ export default function TestConnectionPage() {
   const [loading, setLoading] = useState(false);
   const [apiUrl, setApiUrl] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('api_url') || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      return localStorage.getItem('api_url') || process.env.NEXT_PUBLIC_API_URL || 'https://next-platform-starter-production.up.railway.app';
     }
-    return 'http://localhost:3001';
+    return 'https://next-platform-starter-production.up.railway.app';
   });
 
   const addResult = (test, status, message, details = null) => {
