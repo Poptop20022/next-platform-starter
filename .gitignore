@@ -9,6 +9,7 @@ backend/.env
 
 # Build outputs
 .next/
+.vercel/
 dist/
 backend/dist/
 

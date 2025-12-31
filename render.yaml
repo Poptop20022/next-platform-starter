@@ -14,6 +14,17 @@ services:
         generateValue: true
     healthCheckPath: /api/health
 
+  - type: web
+    name: tenderhub-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+
 databases:
   - name: tenderhub-db
     plan: free

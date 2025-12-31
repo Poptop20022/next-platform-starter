@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "export": "next build"
   },
   "dependencies": {
     "@netlify/blobs": "^10.5.0",
